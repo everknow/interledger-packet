@@ -327,7 +327,7 @@ impl<'a> PrepareBuilder<'a> {
 #[derive(PartialEq, Clone)]
 pub struct Fulfill {
     buffer: BytesMut,
-    content_offset: usize,
+    pub content_offset: usize,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -425,7 +425,7 @@ impl<'a> FulfillBuilder<'a> {
 pub struct Reject {
     buffer: BytesMut,
     code: ErrorCode,
-    message_offset: usize,
+    pub message_offset: usize,
     triggered_by_offset: usize,
     data_offset: usize,
 }
