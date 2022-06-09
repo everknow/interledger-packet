@@ -108,11 +108,12 @@ impl From<Reject> for Packet {
 #[derive(PartialEq, Clone)]
 pub struct Prepare {
     buffer: BytesMut,
-    pub content_offset: usize,
+    content_offset: usize,
     destination: Address,
     amount: u64,
     expires_at: SystemTime,
     data_offset: usize,
+    pub packet_length: Option<usize>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -200,6 +201,7 @@ impl TryFrom<BytesMut> for Prepare {
             amount,
             expires_at,
             data_offset,
+            packet_length: Some(content_offset + content_len)
         })
     }
 }
@@ -320,6 +322,7 @@ impl<'a> PrepareBuilder<'a> {
             amount: self.amount,
             expires_at: self.expires_at,
             data_offset: buf_size - data_size,
+            packet_length: None
         }
     }
 }
@@ -327,7 +330,8 @@ impl<'a> PrepareBuilder<'a> {
 #[derive(PartialEq, Clone)]
 pub struct Fulfill {
     buffer: BytesMut,
-    pub content_offset: usize,
+    content_offset: usize,
+    pub packet_length: Option<usize>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -341,6 +345,7 @@ impl TryFrom<BytesMut> for Fulfill {
 
     fn try_from(buffer: BytesMut) -> Result<Self, Self::Error> {
         let (content_offset, mut content) = deserialize_envelope(PacketType::Fulfill, &buffer)?;
+        let content_len = content.len();
 
         content.skip(FULFILLMENT_LEN)?;
         content.skip_var_octet_string()?;
@@ -350,6 +355,7 @@ impl TryFrom<BytesMut> for Fulfill {
         Ok(Fulfill {
             buffer,
             content_offset,
+            packet_length: Some(content_offset + content_len)
         })
     }
 }
@@ -417,6 +423,7 @@ impl<'a> FulfillBuilder<'a> {
         Fulfill {
             buffer,
             content_offset,
+            packet_length: None
         }
     }
 }
@@ -425,9 +432,10 @@ impl<'a> FulfillBuilder<'a> {
 pub struct Reject {
     buffer: BytesMut,
     code: ErrorCode,
-    pub message_offset: usize,
+    message_offset: usize,
     triggered_by_offset: usize,
     data_offset: usize,
+    pub packet_length: Option<usize>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -473,6 +481,7 @@ impl TryFrom<BytesMut> for Reject {
             message_offset,
             triggered_by_offset,
             data_offset,
+            packet_length: Some(content_offset + content_len)
         })
     }
 }
@@ -566,6 +575,7 @@ impl<'a> RejectBuilder<'a> {
             triggered_by_offset: buf_size - data_size - message_size - triggered_by_size,
             message_offset: buf_size - data_size - message_size,
             data_offset: buf_size - data_size,
+            packet_length: None
         }
     }
 }
