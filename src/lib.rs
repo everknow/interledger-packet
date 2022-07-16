@@ -10,6 +10,7 @@ mod errors;
 mod fixtures;
 pub mod hex;
 pub mod oer;
+pub mod packet_codec;
 mod packet;
 
 pub use self::address::{Address, AddressError};
