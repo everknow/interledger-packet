@@ -3,7 +3,7 @@ use crate::{Packet};
 use std::io;
 use tokio_util::codec::{Decoder, Encoder};
 use std::convert::TryFrom;
-use log::debug;
+use log::{debug, error};
 
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Default)]
@@ -39,8 +39,6 @@ impl Encoder<Packet> for PacketCodec {
       }
     };
 
-    // buf.reserve(data.len());
-    // buf.put(data);
     Ok(())
   }
 }
@@ -67,7 +65,7 @@ impl Decoder for PacketCodec {
           Ok(Some(Packet::Reject(reject)))
         }
         Err(_err) => {
-          // eprintln!("error {:?}",src.clone());
+          error!("buf: {:?}",src.clone());
           Ok(None)
         }
       }
