@@ -21,23 +21,7 @@ impl Encoder<Packet> for PacketCodec {
 
   fn encode(&mut self, packet: Packet, buf: &mut BytesMut) -> Result<(), io::Error> {
 
-    match packet {
-      Packet::Prepare(prepare) => {
-        let data = prepare.data();
-        buf.reserve(data.len());
-        buf.put(data);
-      }
-      Packet::Fulfill(fulfill) => {
-        let data = fulfill.data();
-        buf.reserve(data.len());
-        buf.put(data);
-      }
-      Packet::Reject(reject) => {
-        let data = reject.data();
-        buf.reserve(data.len());
-        buf.put(data);
-      }
-    };
+    buf.put(BytesMut::from(packet));
 
     Ok(())
   }
